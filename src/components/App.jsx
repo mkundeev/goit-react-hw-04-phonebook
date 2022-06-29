@@ -1,4 +1,4 @@
-import React from "react";
+import {useState, useEffect} from "react";
 import { nanoid } from 'nanoid'
 
 
@@ -7,59 +7,52 @@ import ContactList from "./ContactList";
 import Filter from './Filter';
 
 
-class App extends React.Component{
-  state = {
-  contacts:  [],
-  filter: ''
-  }
-  componentDidMount() {
-    const contacts = JSON.parse(localStorage.getItem('contacts'))
+function App (){
+  
+  const [filter, setFilter] = useState('')
+  const [contacts, setContacts] = useState(JSON.parse(localStorage.getItem('contacts'))??[])
+
+  
+  useEffect(() => { 
+    localStorage.setItem('contacts', JSON.stringify(contacts))
+  }, [contacts])
+
+  const formSubmit = data => {
    
-    if(contacts){
-    this.setState({
-      contacts,
-    })}
-  }
-
-
-  componentDidUpdate(prevProps,prevState) {
-    if (prevState.contacts !== this.state.contacts){
-    localStorage.setItem('contacts', JSON.stringify(this.state.contacts))}
-  }
-
-  formSubmit = data => {
     data.id = nanoid()
-    if (this.state.contacts.some(({ name }) => name === data.name)) {
+    console.log(data)
+    if (contacts.some(({ name }) => name === data.name)) {
       alert(`${data.name} is already in contacts`)
       return
     }
-    this.setState({ contacts: [...this.state.contacts, data] })
+    setContacts(prevState => [...prevState, data])
+    console.log(contacts)
     
   }
 
-  deletContact = id => {
-    this.setState(prevState=>({contacts: prevState.contacts.filter(contact=>contact.id!==id)}))
+  const deletContact = id => {
+    setContacts(prevState=>(prevState.filter(contact=>contact.id!==id)))
   }
-  changeFilter = e => {
-
-    this.setState({ filter: e.currentTarget.value })
+  const changeFilter = e => {
+    setFilter(e.currentTarget.value.toLowerCase())
     
   }
-  render() { 
-    const normilizeFilter = this.state.filter.toLowerCase()
-    const filterContacts = this.state.contacts.filter(contact=>contact.name.toLowerCase().includes(normilizeFilter))
-    const {filter}=this.state
+  
+    
+    const filterContacts = contacts.filter(contact=>contact.name.toLowerCase().includes(filter))
+   
     return (<div className="section">
       <h1>Phonebook</h1>
-      <ContactForm onSubmit={this.formSubmit} />
+      <ContactForm onSubmit={formSubmit} />
 
       <h2>Contacts</h2>
-      <Filter value={filter} onChange={this.changeFilter} />
-      <ContactList contacts={filterContacts} deletContact={this.deletContact} />
+      <Filter value={filter} onChange={changeFilter} />
+      <ContactList contacts={filterContacts} deletContact={deletContact} />
       
     </div>)
-  }
+  
 }
+
 
 export {App} 
   
