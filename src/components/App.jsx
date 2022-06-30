@@ -10,7 +10,7 @@ import Filter from './Filter';
 function App (){
   
   const [filter, setFilter] = useState('')
-  const [contacts, setContacts] = useState(JSON.parse(localStorage.getItem('contacts'))??[])
+  const [contacts, setContacts] = useState(() => { JSON.parse(localStorage.getItem('contacts')) ?? [] })
 
   
   useEffect(() => { 
